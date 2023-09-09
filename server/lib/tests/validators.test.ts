@@ -16,3 +16,19 @@ describe('Username validity tests', () => {
     });
   }
 });
+
+let passwords = {
+  'password!@#123': true,
+  '!@@#$%^&*()[]{}|\\?1': true,
+  '😂😂😂😂😂😂😂😂😂😂😂😂😂😂😂😂😂😂': true, //72 bytes
+  '😂😂😂😂😂😂😂😂😂😂😂😂😂😂😂😂😂😂a': false, //73 bytes
+  '': false
+};
+
+describe("Password valdity tests", () => {
+  for (const [password, validity] of Object.entries(passwords)) {
+    test(`Test the validity of '${password}', which is ${validity}`, () => {
+      expect(validators.validatePassword(password)).toEqual(validity);
+    });
+  }
+});
