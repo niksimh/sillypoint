@@ -1,4 +1,7 @@
-{
+{ 
+  "scripts": {
+    "test:validators": "jest ./lib/tests/validators.test.ts"
+  },
   "devDependencies": {
     "@types/jest": "^29.5.4",
     "@types/node": "^20.6.0",
