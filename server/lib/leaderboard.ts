@@ -75,10 +75,14 @@ export async function remove(username: string) {
 export async function update(
   username: string , updateValue: number) {
   
-    const client = createClient({
+  const client = createClient({
     url: process.env.REDIS_ENDPOINT
   });
 
+  client.on('error', (error) => {
+    throw error;
+  });
+  
   await client.connect();
   let score = (await client.zScore('leaderboard', username))!;
   if (score + updateValue < 0) {
@@ -86,4 +90,5 @@ export async function update(
   }
   await client.zIncrBy('leaderboard', updateValue, username);
   await client.quit();
+  
 }
