@@ -109,3 +109,66 @@ test('Test updating a leaderboard entry', async () => {
     throw error;
   }
 });
+
+test('Test getting a range of entries from the leaderboard', async () => {
+  let entries1 = [
+    {value: 'user8', score: 4},
+    {value: 'user7', score: 3},
+    {value: 'user6', score: 3} 
+  ];
+  let entries2 = [
+    {value: 'user5', score: 3},
+    {value: 'user4', score: 3},
+    {value: 'user3', score: 2}
+  ];
+  let entries3 = [
+    {value:'user2', score: 2},
+    {value:'user1', score: 1},
+  ];
+
+  try {
+    //Add users. 
+    for(let [username, data] of Object.entries(users)) {
+      await leaderboard.add(username, data.score);
+    }
+
+    let resEntries
+    //Negative offset should be the same as an offest of 0. 
+    resEntries = await leaderboard.getRange(-1);
+    expect(resEntries).toEqual(entries1);
+
+    //First range of entries.
+    resEntries = await leaderboard.getRange(0);
+    expect(resEntries).toEqual(entries1);
+    resEntries = await leaderboard.getRange(1);
+    expect(resEntries).toEqual(entries1);
+    resEntries = await leaderboard.getRange(2);
+    expect(resEntries).toEqual(entries1);
+
+    //Second range of entries. 
+    resEntries = await leaderboard.getRange(3);
+    expect(resEntries).toEqual(entries2);
+    resEntries = await leaderboard.getRange(4);
+    expect(resEntries).toEqual(entries2);
+    resEntries = await leaderboard.getRange(5);
+    expect(resEntries).toEqual(entries2);
+
+    //Third range of entires. 
+    resEntries = await leaderboard.getRange(6);
+    expect(resEntries).toEqual(entries3);
+    resEntries = await leaderboard.getRange(7);
+    expect(resEntries).toEqual(entries3);
+
+    //Overextend offset. Should be same as last element (0-indexed).
+    resEntries = await leaderboard.getRange(8);
+    expect(resEntries).toEqual(entries3);
+
+    //Cleanup.
+    for(let [username, _] of Object.entries(users)) {
+      await leaderboard.remove(username);
+    }
+
+  } catch (error) {
+    throw error;
+  }
+});

@@ -82,7 +82,7 @@ export async function update(
   client.on('error', (error) => {
     throw error;
   });
-  
+
   await client.connect();
   let score = (await client.zScore('leaderboard', username))!;
   if (score + updateValue < 0) {
@@ -91,4 +91,44 @@ export async function update(
   await client.zIncrBy('leaderboard', updateValue, username);
   await client.quit();
   
+}
+
+/**
+ * Retrieves 3 users from offset from the leaderboard stored in Redis. 
+ */
+export async function getRange(offset: number) {
+  let scores: {score: number, value: string}[] = [];
+  let count; 
+
+  const client = createClient({
+    url: process.env.REDIS_ENDPOINT
+  });
+
+  client.on('error', (error) => {
+    throw error;
+  });
+
+  await client.connect();
+
+  //TODO: maybe don't need these adjustements.
+  count = await client.zCard('leaderboard');
+  if (offset < 0) {
+    offset = 0;
+  } else if (offset > count - 1) {
+      offset = count - 1
+  }
+
+  offset = Math.floor(offset/3) * 3;
+  
+  scores = await client.zRangeWithScores('leaderboard', '+inf', '-inf', {
+    BY: 'SCORE',
+    REV: true,
+    LIMIT: {
+      offset: offset,
+      count: 3
+    },
+  });
+
+  await client.quit();
+  return scores;
 }
