@@ -2,10 +2,12 @@
   "scripts": {
     "test:validators": "jest ./lib/tests/validators.test.ts",
     "test:email": "jest ./lib/tests/email.test.ts",
-    "test:leaderboard": "jest ./lib/tests/leaderboard.test.ts"
+    "test:leaderboard": "jest ./lib/tests/leaderboard.test.ts",
+    "test:token": "jest ./lib/tests/token.test.ts"
   },
   "devDependencies": {
     "@types/jest": "^29.5.4",
+    "@types/jsonwebtoken": "^9.0.2",
     "@types/node": "^20.6.0",
     "@types/nodemailer": "^6.4.10",
     "jest": "^29.6.4",
@@ -14,6 +16,7 @@
   },
   "dependencies": {
     "dotenv": "^16.3.1",
+    "jsonwebtoken": "^9.0.2",
     "nodemailer": "^6.9.5",
     "redis": "^4.6.8"
   }
