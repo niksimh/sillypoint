@@ -55,3 +55,63 @@ export function verifyToken(jwtToken: string, type: tokenType) {
   }
   return payload;
 }
+
+/**
+ * Activates the refresh token by storing it in the user:<userId> set in Redis. 
+ */
+export async function activateRefreshToken(
+  userId: number, refreshTokenId: string) {  
+  
+  let client = createClient({
+    url: process.env.REDIS_ENDPOINT
+  });
+
+  client.on('error', (error) => {
+    throw error;
+  });
+
+  await client.connect();
+  await client.sAdd('user:'+userId, refreshTokenId);
+  await client.quit();
+}
+
+/**
+ * Checks the active status of the refresh token for the passed in user. 
+ */
+export async function isRefreshTokenActive(
+  userId: number, refreshTokenId: string) {
+  
+  let isActive = false;
+
+  let client = createClient({
+    url: process.env.REDIS_ENDPOINT
+  });
+
+  client.on('error', (error) => {
+    throw error;
+  });
+
+  await client.connect();
+  isActive = await client.sIsMember('user:'+userId, refreshTokenId);
+  await client.quit();
+
+  return isActive;
+}
+
+/**
+ * Deletes the user:<userId> set, functionally deactivating all the refresh 
+ * tokens.
+ */
+export async function deactivateRefreshTokens(userId: number) {
+  let client = createClient({
+    url: process.env.REDIS_ENDPOINT
+  });
+
+  client.on('error', (error) => {
+    throw error;
+  });
+
+  await client.connect();
+  await client.del('user:'+userId);
+  await client.quit();
+}

@@ -31,3 +31,19 @@ test('Test creating and verifying access tokens', () => {
 test('Test verifying an invalid token', () => {
   expect(token.verifyToken('', 'access')).toEqual({});
 });
+
+test('Test activating, deactivating, and' + 
+  ' checking the status of refresh tokens', async () => {
+  
+    let userId = 10;
+  
+  //Activate refresh token and check its active status. 
+    await token.activateRefreshToken(userId, 'someRandomTokenId1');
+  expect(await token.isRefreshTokenActive(userId, 'someRandomTokenId1'))
+    .toEqual(true);
+  expect(await token.isRefreshTokenActive(userId, 'someRandomTokenId2'))
+    .toEqual(false);
+  await token.deactivateRefreshTokens(userId);
+  expect(await token.isRefreshTokenActive(userId, 'someRandomTokenId1'))
+    .toEqual(false);
+});
