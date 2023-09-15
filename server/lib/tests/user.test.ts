@@ -17,10 +17,17 @@ let users = {
   }
 }
 
+let HOST = process.env.MYSQL_HOST;
+let USERNAME = process.env.MYSQL_USERNAME;
+let PASSWORD = process.env.MYSQL_PASSWORD;
+
 /**
  * Flush test database in case of errors. 
  */
 afterEach(async () => {
+  process.env.MYSQL_HOST = HOST; //when checking errors. 
+  process.env.MYSQL_USERNAME = USERNAME;
+  process.env.MYSQL_PASSWORD = PASSWORD;
   return new Promise((resolve, reject) => {
     let connection = mysql.createConnection({
       host: process.env.MYSQL_HOST,
@@ -44,6 +51,19 @@ afterEach(async () => {
 
     connection.end();
   });
+});
+
+test('Test user database error', async() => {
+  delete process.env.MYSQL_HOST;
+  delete process.env.MYSQL_USERNAME;
+  delete process.env.MYSQL_PASSWORD;
+  
+  //Add user0.
+  await expect(user.add(
+    'user0', 
+    users.user0.email, 
+    users.user0.password
+  )).rejects.toEqual(expect.anything());
 });
 
 test('Test adding, removing, and checking user exists', async () => { 
