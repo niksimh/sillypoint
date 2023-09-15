@@ -162,3 +162,48 @@ test('Test validation on a non-existing user', async () => {
     '');
   expect(invalidUserId).toEqual(false);
 });
+
+test('Test incrementing and getting user score', async () => {
+  let win = 3;
+  let lose = -2;
+
+  //Add a user.     
+  let userId = await user.add(
+    'user0', 
+    users.user0.email, 
+    users.user0.password
+  );
+  
+  let score = 0;
+  let resScore;
+  //Get starting score.
+  resScore = await user.getScore(userId);
+  expect(resScore).toEqual(score);
+
+  //User0 won (score = 3). 
+  score += win;
+  await user.incrementScore(userId, win);
+  resScore = await user.getScore(userId);
+  expect(resScore).toEqual(score);
+  
+  //User0 lost (score = 1).
+  score += lose;
+  await user.incrementScore(userId, lose);
+  resScore = await user.getScore(userId);
+  expect(resScore).toEqual(score);
+  
+  //User0 loses again (score = 0, not -1).
+  score = 0;
+  await user.incrementScore(userId, lose);
+  resScore = await user.getScore(userId);
+  expect(resScore).toEqual(score);
+
+  //User0 loses a third time (score = 0, not -1).
+  score = 0;
+  await user.incrementScore(userId, lose);
+  resScore = await user.getScore(userId);
+  expect(resScore).toEqual(score);
+  
+  //Cleanup.
+  await user.remove(userId);
+});

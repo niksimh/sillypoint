@@ -183,3 +183,79 @@ export async function validateField(
     connection.end();
   });
 };
+
+/**
+ * Increments the user's score by updateValue within the MySQL user database. 
+ */
+export async function incrementScore(userId: number, updateValue: number) {
+  return new Promise((resolve,reject) => {  
+    let connection = mysql.createConnection({
+      host: process.env.MYSQL_HOST,
+      user: process.env.MYSQL_USERNAME,
+      password: process.env.MYSQL_PASSWORD,
+    });
+
+    connection.connect(error => {
+      if (error) {
+        reject(error);
+      }
+    });
+  
+    let query = `
+      UPDATE ${process.env.MYSQL_TABLE}
+      SET score=IF(score + ${updateValue} < 0, 0, score + ${updateValue})
+      WHERE userId=${userId};
+    `;
+    connection.query(query, error => {
+      if (error){
+        reject(error);
+      };
+      resolve(undefined);
+    });
+  
+    connection.end(error => {
+      if (error) {
+        reject(error);
+      }
+    });
+  });
+};
+
+/**
+ * Gets the score of the passed in user within the MySQL user database.
+ */
+export async function getScore(userId: number) {
+  return new Promise((resolve,reject) => {
+    let connection = mysql.createConnection({
+      host: process.env.MYSQL_HOST,
+      user: process.env.MYSQL_USERNAME,
+      password: process.env.MYSQL_PASSWORD,
+    });
+    
+    connection.connect(error => {
+      if (error) {
+        reject(error);
+      }
+    });
+  
+    let query = `
+      SELECT score 
+      FROM ${process.env.MYSQL_TABLE}
+      WHERE userId = ${userId};
+    `;
+    connection.query(query, (error, results) => {
+      if (error) {
+        reject(error);
+      };
+      if (results.length > 0) {
+        resolve(results[0].score);
+      }
+    });
+  
+    connection.end(error => {
+      if (error) {
+        reject(error);
+      }
+    });
+  });
+};
