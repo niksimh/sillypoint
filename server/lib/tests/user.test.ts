@@ -71,3 +71,94 @@ test('Test adding, removing, and checking user exists', async () => {
   userIdExists = await user.exists('user0');
   expect(userIdExists).toEqual(-1);
 });
+
+test('Test validating user username', async () => {
+  //Add user0.
+  let userId = await user.add(
+    'user0', 
+    users.user0.email, 
+    users.user0.password
+  );
+  
+  //Check correct username.
+  let validUsername = await user.validateField(
+    userId, 
+    'username', 
+    'user0'
+  );
+  expect(validUsername).toEqual(true);
+
+  //Check incorrect username.
+  let invalidUsername = await user.validateField(
+    userId, 
+    'username', 
+    ''
+  );
+  expect(invalidUsername).toEqual(false);
+  
+  //Cleanup.
+  await user.remove(userId);
+});
+
+test('Test validating user password', async () => {
+  //Add user0.
+  let userId = await user.add(
+    'user0', 
+    users.user0.email, 
+    users.user0.password
+  );
+
+  //Check correct password. 
+  let validPassword = await user.validateField(
+    userId, 
+    'hashed_password', 
+    users.user0.password
+  );
+
+  expect(validPassword).toEqual(true);
+  
+  //Check incorrect password.
+  let invalidPassword = await user.validateField(
+    userId, 
+    'hashed_password', 
+    ''
+  );
+  expect(invalidPassword).toEqual(false);
+
+  //Cleanup.
+  await user.remove(userId);
+});
+
+test('Test validating user email', async () => {
+  //Add user0.
+  let userId = await user.add(
+    'user0', 
+    users.user0.email, 
+    users.user0.password
+  );
+
+  //Check correct email. 
+  let validEmail = await user.validateField(
+    userId, 
+    'email', 
+    users.user0.email
+  );
+  expect(validEmail).toEqual(true);
+
+  //Check incorrect email.
+  let invalidEmail = await user.validateField(
+    userId, 
+    'email', 
+    '');
+  expect(invalidEmail).toEqual(false);
+  await user.remove(userId);
+});
+
+test('Test validation on a non-existing user', async () => {
+  //Check user that does not exist.
+  let invalidUserId = await user.validateField(
+    -1, //no one will have a negative userId
+    'email', 
+    '');
+  expect(invalidUserId).toEqual(false);
+});

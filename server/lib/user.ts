@@ -1,6 +1,7 @@
 import mysql from 'mysql'; 
 import bcrypt from 'bcryptjs';
 import 'dotenv/config';
+import { rejects } from 'assert';
 
 /**
  * Adds the user with the passed in username, email, and password to the 
@@ -134,5 +135,51 @@ export async function exists(username: string) {
         reject(error);
       }
     });
+  });
+};
+
+/**
+ * Ensures that the passed in value belonging to the column field matches to 
+ * the user with the passed in user id within the MySQL user database. 
+ */
+export async function validateField(
+  userId: number, field: string, value: string | number) {
+  
+    return new Promise((resolve,reject) => {  
+    let connection = mysql.createConnection({
+      host: process.env.MYSQL_HOST,
+      user: process.env.MYSQL_USERNAME,
+      password: process.env.MYSQL_PASSWORD,
+    });
+
+    connection.connect(error => {
+      if (error) {
+        reject(error);
+      }
+    });
+
+    let query = `
+      SELECT ${field}
+      FROM ${process.env.MYSQL_TABLE}
+      WHERE userId = ${userId}; 
+    `;
+    connection.query(query, function (error, results) {
+      if (error) {
+        reject(error);
+      };
+
+      let valid = false;
+      if (results.length > 0) {
+        let res = results[0][field];
+        if (field === 'hashed_password') {
+          valid = bcrypt.compareSync(value as string, res);
+        } else {
+          valid = res === value; //for username and email.
+        }
+      }
+      resolve(valid);
+    });
+    
+    connection.end();
   });
 };
