@@ -67,6 +67,7 @@ export async function activateRefreshToken(
   });
 
   client.on('error', (error) => {
+    client.quit();
     throw error;
   });
 
@@ -88,6 +89,7 @@ export async function isRefreshTokenActive(
   });
 
   client.on('error', (error) => {
+    client.quit();
     throw error;
   });
 
@@ -108,6 +110,7 @@ export async function deactivateRefreshTokens(userId: number) {
   });
 
   client.on('error', (error) => {
+    client.quit();
     throw error;
   });
 
