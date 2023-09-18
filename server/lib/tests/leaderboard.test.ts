@@ -4,8 +4,11 @@ import 'dotenv/config';
 
 //Integration tests by nature since function logic for all execute on Redis. 
 
+const REDIS_ENDPOINT = process.env.REDIS_ENDPOINT;
+
 //In case of failures, clear test Redis instance.
 afterEach(async () => {
+  process.env.REDIS_ENDPOINT = REDIS_ENDPOINT
   let client = createClient({
     url: process.env.REDIS_ENDPOINT
   });
@@ -29,6 +32,13 @@ const users = {
   user7: {rank: 2, score: 3},
   user8: {rank: 1, score: 4}
 };
+
+test('Test leaderboard databse error', async () => {
+  delete process.env.REDIS_ENDPOINT;
+  
+  await expect(leaderboard.add('user0', 0))
+    .rejects.toEqual(expect.anything());
+});
 
 test('Test adding, getting, and removing from the leaderboard', async () => {
   try {

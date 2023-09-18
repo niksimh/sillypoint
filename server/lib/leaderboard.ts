@@ -15,6 +15,7 @@ export async function add(username: string, score?: number) {
   });
 
   client.on('error', (error) => {
+    client.quit();
     throw error;
   });
 
@@ -36,6 +37,7 @@ export async function get(username: string) {
   });
 
   client.on('error', (error) => {
+    client.quit();
     throw error;
   });
 
@@ -60,6 +62,7 @@ export async function remove(username: string) {
   });
 
   client.on('error', (error) => {
+    client.quit();
     throw error;
   });
 
@@ -80,6 +83,7 @@ export async function update(
   });
 
   client.on('error', (error) => {
+    client.quit();
     throw error;
   });
 
@@ -105,6 +109,7 @@ export async function getRange(offset: number) {
   });
 
   client.on('error', (error) => {
+    client.quit();
     throw error;
   });
 
